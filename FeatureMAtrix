@@ -1,0 +1,120 @@
+#!/usr/bin/python
+import re
+
+wlcModels = re.compile('250(0|4)|550(0|8)|5520|85(0|1)0|8540|75(0|1)0')
+apModels  = re.compile('(2|3)80(0|2)|18(3|5)(0|2)|(1|2|3)(5|6|7)0(0|2)|180(0|2)|181(0|5)|(7|8)0(0|2|3)|15(3|4|5|6|7)(2|0)')
+
+def main():
+    apCode = []
+    wlcCode = []
+
+    WLC = input("What WLC are you using?")
+    WLC = str(WLC)
+    AP = input("What type of AP?") #Multiple AP types? Not implemented yet
+    AP = str(AP)
+
+    device = input("What other device would you like to add?")
+    device = str(device)
+
+    primePattern = re.compile('PI|Prime|Prime Infrastruture')
+    if primePattern.search(device):
+        print("Prime Infrastruture")
+
+    if apModels.search(AP):
+        print ("You've selected the " + WLC + " WLC and the " + AP + " AP")
+
+    apCode = apMatrix(AP)
+    wlcCode = wlcMatrix(WLC)
+    findUnion(apCode,wlcCode)
+
+def apMatrix(apType):
+    apX800 = ['8.2.110.0','x']
+    ap1850 = ['8.1.111.0','x']
+    ap1830 = ['8.1.122.0','x']
+    ap1600 = ['7.4.100.0','8.5.x']
+    ap1700 = ['8.0.100.0','x']
+    apCode = []
+
+    """
+    apX800pattern = re.compile('(2|3)80(0|2)')
+    ap1850pattern = re.compile('185(0|2)')
+    ap1830pattern = re.compile('183(0|2)')
+    ap1600pattern = re.compile('160(0|2)')
+    ap1700pattern = re.compile('170(0|2)')
+
+    if apX800pattern.search(apType):
+        apCode = apX800
+    elif ap1850pattern.search(apType):
+        apCode = ap1850
+    elif ap1830pattern.search(apType):
+        apCode = ap1830
+    elif ap1600pattern.search(apType):
+        apCode = ap1600
+    elif ap1700pattern.search(apType):
+        apCode = ap1700
+    """
+
+    if apType in '3802 3800 2800 2802':
+        apCode = apX800
+    elif apType in '1850 1852':
+        apCode = ap1850
+    elif apType in '1830 1832':
+        apCode = ap1830
+    elif apType in '1600 1602':
+        apCode = ap1600
+    elif apType in '1700 1702':
+        apCode = ap1700
+
+    return apCode
+
+def wlcMatrix(wlcType):
+    WLC2100 = ['4.2','7.x']
+    WLC2504 = ['7.0','8.5']
+    WLC5508 = ['6.0','8.5']
+    WLC5520 = ['8.1','x']
+    wlcCode = []
+
+    if wlcType in '2504 2500':
+        wlcCode = WLC2504
+    elif wlcType in '5500 5508':
+        wlcCode = WLC5508
+    elif wlcType in '5520':
+        wlcCode = WLC5520
+
+    return wlcCode
+
+def findUnion(apList,wlcList):
+    minCode =''
+    maxCode = ''
+
+    lowestAP = apList[0]
+    lowestWLC = wlcList[0]
+    highestAP = apList[1]
+    highestWLC = wlcList[1]
+
+    if lowestAP > lowestWLC:
+        minCode = lowestAP
+    elif lowestAP < lowestWLC:
+        minCode = lowestWLC
+    elif lowestAP == lowestWLC:
+        minCode = lowestWLC
+
+    if highestAP > highestWLC:
+        maxCode = highestWLC
+    elif highestAP < highestWLC:
+        maxCode = highestAP
+    elif highestAP == highestWLC:
+        maxCode = highestWLC
+
+    if maxCode == 'x':
+        maxCode = " and is available on all newer releases."
+    else:
+        maxCode = " and maximum code version is " + maxCode + '.'
+
+    print('Minimum code version is ' + minCode + maxCode)
+
+
+
+main()
+
+
